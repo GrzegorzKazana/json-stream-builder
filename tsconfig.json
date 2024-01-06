@@ -21,6 +21,11 @@
         "noPropertyAccessFromIndexSignature": true,
         "allowUnusedLabels": true,
         "allowUnreachableCode": true,
-        "skipLibCheck": true
-    }
+        "skipLibCheck": true,
+
+        "declaration": true,
+        "declarationDir": "dist",
+        "outDir": "dist/esm"
+    },
+    "include": ["json-stream-builder.ts"]
 }

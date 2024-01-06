@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { createBuilder, toJson } from './index';
+import { createBuilder, toJson } from '../json-straam-builder';
 
 describe('json stream builder', () => {
     it('creates primitive value directly', () => {
