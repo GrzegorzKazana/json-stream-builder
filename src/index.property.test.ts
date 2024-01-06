@@ -68,7 +68,7 @@ function walkAndRecreateUsingBuilder<B extends JsonStreamBuilder<any>>(
     g: fc.GeneratorValue,
     builder: B,
 ): B extends JsonStreamBuilder<infer P> ? P : never {
-    if (value === null || typeof value !== 'object') return builder.primitive(value).end();
+    if (value === null || typeof value !== 'object') return builder.primitive(value);
 
     if (Array.isArray(value)) {
         return value
@@ -109,7 +109,7 @@ async function walkAndRecreateUsingBuilderAsync<B extends JsonStreamBuilder<any>
     if (value === null || typeof value !== 'object') {
         const scheduledTick = s.schedule(tick());
 
-        scheduledTick.then(() => builder.primitive(value).end());
+        scheduledTick.then(() => builder.primitive(value));
 
         return s.waitFor(scheduledTick);
     }

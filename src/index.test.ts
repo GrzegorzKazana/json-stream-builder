@@ -4,7 +4,9 @@ import { createBuilder, toJson } from './index';
 
 describe('json stream builder', () => {
     it('creates primitive value directly', () => {
-        const builder = createBuilder().primitive(42);
+        const builder = createBuilder();
+
+        builder.primitive(42);
 
         return expect(toJson(builder.asStream())).resolves.toEqual(42);
     });
@@ -241,6 +243,54 @@ describe('json stream builder', () => {
                 { foo: null, bar: 42, baz: { a: 1 }, sub: [1, 2, 3] },
                 'no',
             ]);
+        });
+    });
+
+    describe('invalid uses', () => {
+        it('should ignore cases when trying to write primitive value after emission ended', () => {
+            const builder = createBuilder();
+
+            builder.primitive(42);
+            builder.primitive(42);
+
+            return expect(toJson(builder.asStream())).resolves.toEqual(42);
+        });
+
+        it('should ignore cases when trying to write non-primitive value after emission ended', () => {
+            const builder = createBuilder();
+
+            builder.array().addItem(1).addItem(2).addItem(3).end();
+            builder.array().addItem(1).addItem(2).addItem(3).end();
+
+            return expect(toJson(builder.asStream())).resolves.toEqual([1, 2, 3]);
+        });
+
+        it('should ignore items written after ending the array', () => {
+            const builder = createBuilder();
+
+            const arrayBuilder = builder.array();
+
+            arrayBuilder.addItem(1);
+            arrayBuilder.addItem(2);
+            arrayBuilder.addItem(3);
+            arrayBuilder.end();
+            arrayBuilder.addItem(4);
+
+            return expect(toJson(builder.asStream())).resolves.toEqual([1, 2, 3]);
+        });
+
+        it('should ignore properties written after ending the object', () => {
+            const builder = createBuilder();
+
+            const arrayBuilder = builder.object();
+
+            arrayBuilder.addProperty('a', 1);
+            arrayBuilder.addProperty('b', 2);
+            arrayBuilder.addProperty('c', 3);
+            arrayBuilder.end();
+            arrayBuilder.addProperty('d', 4);
+
+            return expect(toJson(builder.asStream())).resolves.toEqual({ a: 1, b: 2, c: 3 });
         });
     });
 });

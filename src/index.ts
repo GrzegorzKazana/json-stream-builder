@@ -33,6 +33,8 @@ abstract class Builder<Parent extends Builder<any> | null> {
     }
 
     protected addChildBuilder(child: Builder<any>): this {
+        if (this.endScheduled) return this;
+
         this.queue.push(child);
 
         return this.consumeChildBuilder();
@@ -73,8 +75,8 @@ abstract class Builder<Parent extends Builder<any> | null> {
 /** Default builder, wrapper around all builders for all types */
 export class JsonStreamBuilder<Parent extends Builder<any> | null> extends Builder<Parent> {
     /** Pushes primitive value to stream immediately */
-    public primitive(data: JsonPrimitive): this {
-        return this.value(data);
+    public primitive(data: JsonPrimitive): Parent {
+        return this.value(data).end();
     }
 
     /** Pushes data to stream immediately */
@@ -110,6 +112,8 @@ export class JsonStreamBuilder<Parent extends Builder<any> | null> extends Build
     }
 
     public end(): Parent {
+        this.scheduleEnd();
+
         return this.parent;
     }
 
