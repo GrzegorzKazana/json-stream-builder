@@ -1,6 +1,6 @@
 {
     "name": "json-stream-builder",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "description": "Stream json generated on the fly!",
     "main": "dist/cjs/json-stream-builder.js",
     "module": "dist/esm/json-stream-builder.js",
