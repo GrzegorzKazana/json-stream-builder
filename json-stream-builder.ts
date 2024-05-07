@@ -157,6 +157,11 @@ export class ObjectStreamBuilder<Parent extends Builder<any> | null> extends Bui
         return builder;
     }
 
+    /** Adds multiple key-value pairs immediately */
+    public addProperties(properties: Record<string, JsonValue>): this {
+        return this.pushProperties(properties);
+    }
+
     /** Finalizes the creation of json object. Waits for all subproperties to be resolved. */
     public end(): Parent {
         this.addChildBuilder(new ValueStreamBuilder(this).rawValue('}'));
@@ -170,6 +175,18 @@ export class ObjectStreamBuilder<Parent extends Builder<any> | null> extends Bui
         this.addChildBuilder(
             new ValueStreamBuilder(this).rawValue(`"${key}":${JSON.stringify(value)}`),
         );
+
+        return this;
+    }
+
+    private pushProperties(properties: Record<string, JsonValue>): this {
+        if (Object.keys(properties).length === 0) return this;
+
+        this.insertCommaIfNeeded();
+
+        // serialize all values to json at once, drop leading '{' and trailing '}'
+        const rawValue = JSON.stringify(properties).slice(1, -1);
+        this.addChildBuilder(new ValueStreamBuilder(this).rawValue(rawValue));
 
         return this;
     }
@@ -210,6 +227,11 @@ export class ArrayStreamBuilder<Parent extends Builder<any> | null> extends Buil
         return builder;
     }
 
+    /** Adds multiple array items immediately */
+    public addItems(values: JsonValue[]): this {
+        return this.pushItems(values);
+    }
+
     /** Finalizes the creation of the array. Waits for all items created via child builders to be resolved. */
     public end(): Parent {
         this.addChildBuilder(new ValueStreamBuilder(this).rawValue(']'));
@@ -221,6 +243,18 @@ export class ArrayStreamBuilder<Parent extends Builder<any> | null> extends Buil
     private pushItem(value: JsonValue): this {
         this.insertCommaIfNeeded();
         this.addChildBuilder(new ValueStreamBuilder(this).value(value));
+
+        return this;
+    }
+
+    private pushItems(values: JsonValue[]): this {
+        if (values.length === 0) return this;
+
+        this.insertCommaIfNeeded();
+
+        // serialize all values to json at once, drop leading '[' and trailing ']'
+        const rawValue = JSON.stringify(values).slice(1, -1);
+        this.addChildBuilder(new ValueStreamBuilder(this).rawValue(rawValue));
 
         return this;
     }

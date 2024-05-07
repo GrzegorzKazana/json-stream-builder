@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { createBuilder, toJson } from '../json-straam-builder';
+import { createBuilder, toJson } from '../json-stream-builder';
 
 describe('json stream builder', () => {
     it('creates primitive value directly', () => {
@@ -44,12 +44,51 @@ describe('json stream builder', () => {
         });
     });
 
+    it('creates object using builder adding multiple properties at a time', () => {
+        const builder = createBuilder();
+
+        builder
+            .object()
+            .addProperty('foo', null)
+            .addProperty('bar', 42)
+            .addProperties({})
+            .addProperties({
+                x: 'a',
+                y: 'b',
+            })
+            .addProperty('baz', { a: 1 })
+            .end();
+
+        return expect(toJson(builder.asStream())).resolves.toEqual({
+            foo: null,
+            bar: 42,
+            x: 'a',
+            y: 'b',
+            baz: { a: 1 },
+        });
+    });
+
     it('creates array using builder', () => {
         const builder = createBuilder();
 
         builder.array().addItem(42).addItem(null).addItem({ a: 1 }).end();
 
         return expect(toJson(builder.asStream())).resolves.toEqual([42, null, { a: 1 }]);
+    });
+
+    it('creates array using builder adding multiple items at a time', () => {
+        const builder = createBuilder();
+
+        builder
+            .array()
+            .addItem(42)
+            .addItem(null)
+            .addItems([])
+            .addItems(['x', 'y'])
+            .addItem({ a: 1 })
+            .end();
+
+        return expect(toJson(builder.asStream())).resolves.toEqual([42, null, 'x', 'y', { a: 1 }]);
     });
 
     describe('synchronous', () => {

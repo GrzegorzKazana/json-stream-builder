@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import fc from 'fast-check';
 
-import { JsonValue, createBuilder, JsonStreamBuilder, toJson } from '../json-straam-builder';
+import { JsonValue, createBuilder, JsonStreamBuilder, toJson } from '../json-stream-builder';
 
 /** Generates random json structures */
 const jsonArbitrary = fc.letrec<{ value: JsonValue }>(tie => ({
